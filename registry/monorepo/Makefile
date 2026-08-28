@@ -15,22 +15,33 @@ endif
 endif
 ## /mkpm bootstrap
 
-define @monorepo_submake
+MAKEFLAGS += --no-print-directory
+
+define monorepo_submake
 $(MAKE) -C ./$(1) $(2)
 endef
 
 FORCE:
 .PHONY: FORCE
 
-define @monorepo_set_dirs
-$(if $(@monorepo_dirs),$(error @monorepo_dirs already set: @monorepo_dirs = $(@monorepo_dirs)))$(eval
-@monorepo_dirs := $(strip $(1))
-$$(addsuffix /%,$(strip $(1))): FORCE
-	$(quiet)$$(call $$(@)_submake,$$(@D),$$(notdir $$@))
-)
+define monorepo_submake_rule
+$(1): FORCE
+	$(quiet)$$(call monorepo_submake,$$(@D),$$(notdir $$@))
+endef
+
+# Command line goals get an explicit rule on top of the `<dir>/%` pattern rule.
+# The pattern rule alone is not enough: make picks the matching pattern rule
+# with the shortest stem, so any slashless `<something>-%` rule from a loaded
+# package steals the goal (`logs-f-%` matches `db/logs-f-web` with the stem
+# `db/web`, which is shorter than `db/%`'s stem `logs-f-web`). Explicit rules
+# always beat pattern rules.
+define monorepo_set_dirs
+$(if $(monorepo_dirs),$(error monorepo_dirs already set: monorepo_dirs = $(monorepo_dirs)))$(eval
+monorepo_dirs := $(strip $(1))
+)$(foreach monorepo_target,$(addsuffix /%,$(strip $(1))) $(sort $(filter $(addsuffix /%,$(strip $(1))),$(MAKECMDGOALS))),$(eval $(call monorepo_submake_rule,$(monorepo_target))))
 endef
 
 # Global help hook
 define help_hook
-$(quiet)$(foreach dir,$(@monorepo_dirs),$(call @monorepo_submake,$(dir),help) &&) true
+$(quiet)$(foreach dir,$(monorepo_dirs),$(call monorepo_submake,$(dir),help) &&) true
 endef

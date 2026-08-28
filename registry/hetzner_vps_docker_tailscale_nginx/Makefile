@@ -15,18 +15,5 @@ endif
 endif
 ## /mkpm bootstrap
 
-define docker_call
-docker $(1) $(strip $(2))
-endef
-
-define docker_run_call
-$(call docker_call,run --rm $(strip $(2)))
-endef
-
-$(call mkpm_help,docker-network-create,Create docker network)
-docker-network-create:
-	@docker network inspect $(ARGS) >/dev/null 2>&1 || $(call docker_call,network create $(ARGS))
-
-$(call mkpm_help,docker-network-rm,Remove docker network)
-docker-network-rm:
-	$(call docker_call,network rm $(ARGS))
+$(call mkpm_load,terraform)
+$(call mkpm_load,ssh)

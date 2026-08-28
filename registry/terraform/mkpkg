@@ -1,0 +1,3 @@
+name=tf-hetzner-vps
+main=Makefile
+templates=main.tf,outputs.tf,variables.tf,terraform.tfvars

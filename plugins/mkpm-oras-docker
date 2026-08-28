@@ -1,0 +1,24 @@
+# Dockerized variant of mkpm-oras: runs `oras` via `docker run` instead of
+# requiring a local binary. Shared registry login/logout/publish/download
+# plumbing lives in _mkpm-oras-common.
+_mkpm_plugin_oras_docker_config_dir := $(HOME)/.mkpm-oras-docker
+_mkpm_plugin_oras_installed := $(if $(shell command -v docker),t)
+
+define _mkpm_plugin_oras_cmd
+docker run --rm $(if $(shell [ -t 0 ] && echo 1),-it,-i) -v "$(_mkpm_plugin_oras_docker_config_dir):/root/.docker" -v "$(CURDIR):$(CURDIR)" -w "$(CURDIR)" ghcr.io/oras-project/oras:v$(_mkpm_plugin_oras_version)
+endef
+
+define _mkpm_plugin_oras_install
+$(quiet)command -v docker >/dev/null 2>&1 || { echo "mkpm: docker not found in PATH; install docker, or use the '+mkpm-oras' plugin for a local oras binary instead" >&2; exit 1; }
+$(quiet)mkdir -p "$(_mkpm_plugin_oras_docker_config_dir)"
+$(quiet)echo "oras will run via docker (ghcr.io/oras-project/oras:v$(_mkpm_plugin_oras_version))"
+endef
+
+-include $(dir $(lastword $(MAKEFILE_LIST)))_mkpm-oras-common
+
+ifeq ($(_mkpm_target_ns),)
+$(call mkpm_help,mkpm-plugin-oras-install,Check docker for ORAS)
+.PHONY: mkpm-plugin-oras-install
+mkpm-plugin-oras-install:
+	$(quiet)$(if $(_mkpm_plugin_oras_installed),printf "\033[93mORAS (docker) already available\033[0m\n",$(call _mkpm_plugin_oras_install))
+endif

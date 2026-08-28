@@ -39,9 +39,9 @@ setup() {
 }
 
 @test "pkg-a is only loaded once" {
-  run --keep-empty-lines "${MAKE:-make}" --no-print-directory -C "$FIXTURES/mkpm-load-only-once" print-_mkpm_loaded_pkgs
+  run --keep-empty-lines "${MAKE:-make}" --no-print-directory -C "$FIXTURES/mkpm-load-only-once" print-mkpm_loaded_pkgs
   assert_success
-  assert_output '_mkpm_loaded_pkgs = pkg-a'
+  assert_output 'mkpm_loaded_pkgs = pkg-a'
 }
 
 @test "try downloading remote pkg if local not found" {

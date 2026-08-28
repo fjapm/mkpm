@@ -24,6 +24,13 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install make
 
+      - name: Install Docker (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install docker colima
+          colima start
+          docker info
+
       - name: Run tests
         env:
           CI: true

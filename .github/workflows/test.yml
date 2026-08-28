@@ -24,12 +24,16 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install make
 
-      - name: Install Docker (macOS)
+      # GitHub's arm64 macOS runners are VMs without nested virtualization, so
+      # colima/docker can't start there. Use the native oras plugin instead --
+      # the dockerized one (+mkpm-oras-docker, the default) is covered on Linux.
+      - name: Install ORAS (macOS)
         if: runner.os == 'macOS'
-        run: |
-          brew install docker colima
-          colima start
-          docker info
+        run: brew install oras
+
+      - name: Use native ORAS plugin (macOS)
+        if: runner.os == 'macOS'
+        run: printf 'plugins=+mkpm-oras\nmkpm_dir=../../..\n' > test/fixtures/targets/.mkpmrc.local
 
       - name: Run tests
         env:

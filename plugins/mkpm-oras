@@ -2,16 +2,16 @@
 # Installs and runs a local `oras` binary. For a dockerized variant that
 # needs no local install, see the mkpm-oras-docker plugin. Shared registry
 # login/logout/publish/download plumbing lives in _mkpm-oras-common.
-_mkpm_plugin_oras_installed := $(if $(shell command -v oras),t)
+mkpm_plugin_oras_installed := $(if $(shell command -v oras),t)
 
-define _mkpm_plugin_oras_cmd
+define mkpm_plugin_oras_cmd
 oras
 endef
 
-define _mkpm_plugin_oras_install
-$(quiet)echo "Installing oras $(or $(1),$(_mkpm_plugin_oras_version)) for $(_mkpm_os)/$(_mkpm_arch)..."
-$(quiet)ver="$(or $(1),$(_mkpm_plugin_oras_version))"; tmp="$$(mktemp -d)"; \
-curl -fsSL "https://github.com/oras-project/oras/releases/download/v$$ver/oras_$${ver}_$(_mkpm_os)_$(_mkpm_arch).tar.gz" -o "$$tmp/oras.tar.gz" && \
+define mkpm_plugin_oras_install
+$(quiet)echo "Installing oras $(or $(1),$(mkpm_plugin_oras_version)) for $(mkpm_os)/$(mkpm_arch)..."
+$(quiet)ver="$(or $(1),$(mkpm_plugin_oras_version))"; tmp="$$(mktemp -d)"; \
+curl -fsSL "https://github.com/oras-project/oras/releases/download/v$$ver/oras_$${ver}_$(mkpm_os)_$(mkpm_arch).tar.gz" -o "$$tmp/oras.tar.gz" && \
 tar -zxf "$$tmp/oras.tar.gz" -C "$$tmp" && \
 sudo mv "$$tmp/oras" /usr/local/bin/ && \
 rm -rf "$$tmp"
@@ -19,9 +19,9 @@ endef
 
 -include $(dir $(lastword $(MAKEFILE_LIST)))_mkpm-oras-common
 
-ifeq ($(_mkpm_target_ns),)
+ifeq ($(mkpm_target_ns),)
 $(call mkpm_help,mkpm-plugin-oras-install,Install ORAS)
 .PHONY: mkpm-plugin-oras-install
 mkpm-plugin-oras-install:
-	$(quiet)$(if $(_mkpm_plugin_oras_installed),printf "\033[93mORAS already installed\033[0m\n",$(call _mkpm_plugin_oras_install))
+	$(quiet)$(if $(mkpm_plugin_oras_installed),printf "\033[93mORAS already installed\033[0m\n",$(call mkpm_plugin_oras_install))
 endif

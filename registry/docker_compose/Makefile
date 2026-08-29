@@ -146,11 +146,3 @@ $(call mkpm_help,exec-<container>,Exec into the $(if $(mkpm_target_ns),<$(mkpm_t
 exec-%: opts ?= bash
 exec-%:
 	$(call docker_compose_call,exec,$* $(opts))
-
-# Docker context
-# since context opens an SSH connection per command, add this to ~/.ssh/config so
-# repeated ps/logs calls reuse one connection:
-# Host server.example.com
-# 	ControlMaster auto
-#   ControlPath ~/.ssh/cm-%r@%h:%p
-#   ControlPersist 10m

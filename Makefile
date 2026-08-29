@@ -85,7 +85,7 @@ endef
 
 #$(call mkpmrc_get,key,mkpmrc_file = $(file < .mkpmrc))
 define mkpm_mkpmrc_get
-$(call mkpm_get,$(or $(2),$(filter $(1)=%,$(file < .mkpmrc.local)),$(filter $(1)=%,$(file < .mkpmrc))),$(1))
+$(subst $(comma), ,$(call mkpm_get,$(or $(2),$(filter $(1)=%,$(file < .mkpmrc.local)),$(filter $(1)=%,$(file < .mkpmrc))),$(1)))
 endef
 
 define mkpm_is_rel_dir
@@ -105,7 +105,7 @@ $(if $(mkpm_ws),$(if $(call mkpm_is_rel_dir,$(mkpm_ws)),$(abspath $(mkpm_ws)),$(
 endef
 
 define mkpm_plugins
-$(or $(call mkpm_mkpmrc_get,plugins),+mkpm-oras-docker)
+$(or $(call mkpm_mkpmrc_get,plugins),+mkpm-oras-docker +_mkpm-oras-common)
 endef
 
 define mkpm_pkg
@@ -278,6 +278,15 @@ $(call mkpm_help,mkpm-publish,Pack and publish <$(call mkpm_pkg_name)@$(call mkp
 .PHONY: mkpm-publish
 mkpm-publish: mkpm-pack
 	$(quiet)$(call mkpm_publish,$(call mkpm_pkg).tgz,$(call mkpm_pkg_name),$(call mkpm_pkg_version))
+
+$(call mkpm_help,mkpm-deploy,Pack and deploy <$(call mkpm_pkg_name)@$(call mkpm_pkg_version)> to a remote server via SSH)
+mkpm-deploy: ssh_user ?= root
+mkpm-deploy: ssh_host ?=
+mkpm-deploy: ssh_remote_path ?=
+mkpm-deploy: mkpm-pack
+	$(quiet)$(if $(ssh_host),,$(error Missing ssh_host. Usage: make mkpm-deploy ssh_host=<host> [ssh_user=<user>] [ssh_remote_path=<path>]))
+	$(quiet)$(if $(ssh_remote_path),,$(error Missing ssh_remote_path. Usage: make mkpm-deploy ssh_remote_path=<path> [ssh_user=<user>] [ssh_host=<host>]))
+	$(quiet)ssh $(ssh_user)@$(ssh_host) 'mkdir -p $(ssh_remote_path) && tar -xzf - -C $(ssh_remote_path)' < $(call mkpm_pkg).tgz
 
 $(call mkpm_help,mkpm-semver-bump,Set the package version explicitly. Usage: make mkpm-semver-bump ver=<version>)
 .PHONY: mkpm-semver-bump

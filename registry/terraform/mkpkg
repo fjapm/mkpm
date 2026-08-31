@@ -1,3 +1,4 @@
-name=tf-hetzner-vps
+name=terraform
+ver=0.0.1
 main=Makefile
-templates=main.tf,outputs.tf,variables.tf,terraform.tfvars
+templates=.terraformrc.local

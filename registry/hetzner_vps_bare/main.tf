@@ -13,8 +13,8 @@ provider "hcloud" {
 }
 
 module "server" {
-  source               = "./.tf-modules/hetzner-vps-bare"
-
+  source               = "github.com/fjapm/terraform-modules.git//hetzner-vps-bare"
+  
   vps                  = {
     name                 = var.vps_name
     image                = var.vps_image

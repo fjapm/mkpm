@@ -17,6 +17,8 @@ endif
 endif
 ## /mkpm bootstrap
 
+docker_compose_files := docker-compose.common.yml docker-compose.$(ENV).yml
+
 define pgkit_set_project_name
 $(eval export pgkit_project_name := $(1))
 endef

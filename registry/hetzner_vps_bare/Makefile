@@ -15,8 +15,8 @@ endif
 endif
 ## /mkpm bootstrap
 
-$(call mkpm_load,terraform)
-$(call mkpm_load,ssh)
+$(call mkpm_load,terraform@0.0.1)
+$(call mkpm_load,ssh@0.0.1)
 
 define terraform_on_after_tf_apply
 $(call terraform_call,output -raw public_ip > .sshrc)

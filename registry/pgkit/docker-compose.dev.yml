@@ -1,0 +1,25 @@
+# name: ${pgkit_project_name}
+
+# Use include to import the base docker-compose.yml file from the parent directory. This allows you to reuse common configurations and services defined in the parent file.
+# include:
+#   - ../../docker-compose.yml
+
+services:
+  postgres:
+    env_file:
+      - .env
+      - .env.local
+
+  # https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html 
+  pgadmin:
+    env_file:
+      - .env
+      - .env.local
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)
+      - traefik.http.routers.pgadmin.entrypoints=web
+      - traefik.http.services.pgadmin.loadbalancer.server.port=80
+
+volumes:
+  pgdata:

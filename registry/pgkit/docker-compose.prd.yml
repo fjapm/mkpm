@@ -1,0 +1,24 @@
+include:
+  - docker-compose.common.yml
+
+services:
+  postgres:
+    shm_size: 256m
+    env_file:
+      - .env
+    
+  pgadmin:
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - 80
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - .pgpass:/pgadmin4/.pgpass
+
+volumes:
+  pgdata:
+    external: true

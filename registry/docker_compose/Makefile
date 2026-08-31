@@ -15,13 +15,17 @@ endif
 endif
 ## /mkpm bootstrap
 
+ifeq ($(ENV),)
+$(info Warning: ENV is not set. Using default value: ENV=dev)
+ENV := dev
+endif
 
 define docker_compose_load_env_file
 $(call mkpm_read_config,$(file < $(1)))
 endef
 
 define docker_compose_call
-$(quiet)docker compose $(1) $(strip $(2))
+$(quiet)docker compose $(if $(docker_compose_files),$(foreach f,$(docker_compose_files),-f $(f)),-f docker-compose.yml) $(1) $(strip $(2))
 endef
 
 docker_compose_user ?= $(shell id -u):$(shell id -g)

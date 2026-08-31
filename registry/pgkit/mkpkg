@@ -1,4 +1,4 @@
 name=pgkit
-version=1.0.0
+version=0.0.1
 main=Makefile
-templates=.env,docker-compose.yml,Dockerfile
+templates=.env,docker-compose.common.yml,docker-compose.dev.yml,docker-compose.prd.yml,Dockerfile
